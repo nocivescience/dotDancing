@@ -4,57 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: gray;
+            border-radius: 50%;
+            margin: 5px;
+        }
+        .row {
+            display: flex;
+        }
+    </style>
 </head>
-<style>
-  body{
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: black;
-  }
-  .dot{
-    width: 10px;
-    height: 10px;
-    background-color: gray;
-    border-radius: 50%;
-    margin: 5px;
-  }
-  .row{
-    display: flex;
-  }
-</style>
 <body>
     <div id="matrix"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" integrity="sha512-aNMyYYxdIxIaot0Y1/PLuEu3eipGCmsEUBrUq+7aVyPGMFH8z0eTP0tkqAvv34fzN6z+201d3T8HPb1svWSKHQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         const matrix = document.getElementById('matrix');
-        for (let i = 0; i < 30; i++) {
+        const rows = 30;
+        const cols = 30;
+        const dots = [];
+
+        // Create grid of dots
+        for (let i = 0; i < rows; i++) {
             const row = document.createElement('div');
             row.classList.add('row');
-            for (let j = 0; j < 30; j++) {
+            for (let j = 0; j < cols; j++) {
                 const dot = document.createElement('div');
                 dot.classList.add('dot');
                 row.appendChild(dot);
+                dots.push(dot); // Save reference to each dot
             }
             matrix.appendChild(row);
         }
-        let clickPosition = {x: 0, y: 0};
+
+        // Function to animate dots
+        function animateDots(centerX, centerY) {
+            dots.forEach((dot, index) => {
+                // Calculate position of dot relative to the matrix
+                const rect = dot.getBoundingClientRect();
+                const dotX = rect.left + rect.width / 2;
+                const dotY = rect.top + rect.height / 2;
+
+                // Calculate distance from the click position to the dot position
+                const distanceX = dotX - centerX;
+                const distanceY = dotY - centerY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+                // Calculate delay based on distance
+                const delay = distance / 2;
+
+                anime({
+                    targets: dot,
+                    scale: [
+                        { value: 1, easing: 'easeOutSine', duration: 500 },
+                        { value: 1.6, easing: 'easeInOutQuad', duration: 1200 },
+                        { value: 1, easing: 'easeOutSine', duration: 1000 }
+                    ],
+                    delay: delay,
+                    loop: false,
+                });
+            });
+        }
+
+        // Handle click events
         document.addEventListener('click', (e) => {
-            clickPosition = {x: e.clientX, y: e.clientY};
+            const centerX = e.clientX;
+            const centerY = e.clientY;
+            animateDots(centerX, centerY);
         });
-        anime({
-            targets: '.dot',
-            scale: [
-                {value: 1, easing: 'easeOutSine', duration: 500},
-                {value: 1.6, easing: 'easeInOutQuad', duration: 1200},
-                {value: 1, easing: 'easeOutSine', duration: 1000}
-            ],
-            delay: anime.stagger(200, {grid: [20, 20], from: 'center'}),
-            loop: true,
-        })
-        
     </script>
 </body>
 </html>
